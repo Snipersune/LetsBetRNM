@@ -79,7 +79,7 @@ powerplay_data = {
 }
      
 
-update = False
+update = True
 powerplay_data_fname = 'output/powerplay_data.json'
 
 if os.path.exists(powerplay_data_fname):
