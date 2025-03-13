@@ -2,3 +2,5 @@
 .venv/
 _*
 output/
+.vscode
+test*

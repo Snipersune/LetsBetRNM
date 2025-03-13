@@ -19,8 +19,8 @@ rendered_html = driver.page_source
 soup = BeautifulSoup(rendered_html, "html.parser")
 
 # Load template powerplay script
-env = Environment(loader=FileSystemLoader(os.path.join(os.getcwd(), "templates")))
-p_template = env.get_template('powerplay_template.html')
+env = Environment(loader=FileSystemLoader(os.path.join(os.getcwd(), "html", "templates")))
+p_template = env.get_template('powerplay.html')
 
 teams_home = []
 teams_away = []
@@ -77,7 +77,8 @@ powerplay_data = {
     "optX_odds_array": optX_odds,
     "opt2_odds_array": opt2_odds,
 }
-     
+
+
 
 update = True
 powerplay_data_fname = 'output/powerplay_data.json'
@@ -97,5 +98,5 @@ if update:
 
     rendered_html = p_template.render(powerplay_data)
 
-    with open('output/powerplay_rendered.html', 'w') as f:
+    with open('html/rendered/powerplay.html', 'w') as f:
         f.write(rendered_html)

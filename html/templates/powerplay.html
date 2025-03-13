@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta http-equiv="content-type" content="text/html" charset="ISO-8859-1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNM - Powerplay</title>
+    <style>
+
+        .page-content {
+            display: flex;
+        }
+
+        /* Container for all powerplay matches */
+        .user-info-container {
+            width: max(450px, 50%);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+            background-color: rgba(160, 8, 19, .03);
+        }
+
+
+        /* Container for all powerplay matches */
+        .powerplay-container {
+            width: max(450px, 90%);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+            background-color: rgba(160, 8, 19, .03);
+        }
+
+        /* Container for each match */
+        .match-row-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        /* Styles for all parts of the betting section (top row) */
+        .betting-section {
+            display: grid;
+            grid-template-columns: 48px auto minmax(150px, 30%); 
+            align-items: center;
+            padding: 16px 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.3s ease;
+        }   
+
+        .badge {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            background-color: darkred;
+            color: white;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .match-description {
+            display: flex;
+            margin: 0 8px;
+            justify-self: flex-start;
+        }
+
+        .match-description-primary {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .participant {
+            display: inline-block;
+        }
+
+        .participant-split {
+            margin: 0 8px;
+            color: #6c757d;
+        }
+
+        .bet-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .bet-buttons button {
+            width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 7px;
+            background-color: rgba(160, 8, 19, .03);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+
+        .bet-buttons button.active {
+            background-color: darkred;
+            color: white;
+        }
+
+
+
+        /* Styles for all parts of the info section (bottom row) */
+        .odds-info-section {
+            margin-top: 0px;
+            padding: 8px;
+            background-color: rgba(160, 8, 19, .03);
+            border-top: 1px solid #ddd;
+        }
+
+        .odds-info-row {
+            display: grid;
+            grid-template-columns: auto minmax(150px, 30%);
+            align-items: center;
+        }
+
+        .odds-info-title {
+            justify-self: flex-start;
+        }
+
+        .odds-info-stats {
+            display: flex;
+            justify-content: flex-end; 
+            gap: 8px;
+        }
+
+        .odds-stat {
+            font-size: 16px;
+            font-weight: 400;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .submit-section {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Styles for submit button */
+        .submit-button {
+            margin: 0px 8px;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            background-color: darkred;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: rgb(92, 0, 0);
+        }
+    </style>
+    <script>
+        function toggleSelection(button, row, value) {
+            const inputId = `r${row}-${value}`;
+            const hiddenInput = document.getElementById(inputId);
+
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                hiddenInput.value = "0"; // Mark as deselected
+            } else {
+                button.classList.add('active');
+                hiddenInput.value = "1"; // Mark as selected
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class='page-content', id="page-content">
+        <form action="/process-powerplay" method="POST">
+            <!-- Generate 8 divisions with 3 option buttons and space for text -->
+            <div class='powerplay-container', id="powerplay-container">
+                <h1 style="text-align: left; margin: 0;">Powerplay</h1>
+                <script>
+                    const container = document.getElementById('powerplay-container');
+
+                    const teamsHome = {{ teams_home_array | tojson | safe }};
+                    const teamsAway = {{ teams_away_array | tojson | safe }};
+
+                    const perc1 = {{ opt1_percs_array | tojson | safe }};
+                    const percX = {{ optX_percs_array | tojson | safe }};
+                    const perc2 = {{ opt2_percs_array | tojson | safe }};
+                    
+                    const odds1 = {{ opt1_odds_array | tojson | safe }};
+                    const oddsX = {{ optX_odds_array | tojson | safe }};
+                    const odds2 = {{ opt2_odds_array | tojson | safe }};
+
+                    betOptionsText = ["1", "X", "2"];
+                    for (let i = 1; i <= 8; i++) {
+                        const matchContainer = document.createElement('div');
+                        matchContainer.className = 'match-row-container';
+                        
+                        // Betting section
+                        const bettingSection = document.createElement('div');
+                        bettingSection.className = 'betting-section';
+
+                        const bettingSectionBadge = document.createElement('div');
+                        bettingSectionBadge.className = 'badge';
+                        bettingSectionBadge.textContent = `${i}`;
+                        bettingSection.appendChild(bettingSectionBadge);
+
+                        const bettingSectionGameDesc = document.createElement('div'); 
+                        bettingSectionGameDesc.className = 'match-description';
+
+                        const bettingSectionGameDescPrimary = document.createElement('div'); 
+                        bettingSectionGameDescPrimary.className = 'match-description-primary';
+                        bettingSectionGameDescPrimary.innerHTML = `<span class="participant">${teamsHome[i-1]}</span><span class="participant-split">-</span><span class="participant">${teamsAway[i-1]}</span>`
+                        
+                        bettingSectionGameDesc.appendChild(bettingSectionGameDescPrimary);
+                        bettingSection.appendChild(bettingSectionGameDesc);
+
+                        const betButtonsDiv = document.createElement('div');
+                        betButtonsDiv.className = 'bet-buttons';
+                        for (let j = 0; j < 3; j++) {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.classList.add('bet-button');
+                            button.dataset.row = i;
+                            button.dataset.value = betOptionsText[j];
+                            button.textContent = `${betOptionsText[j]}`;
+                            
+                            button.onclick = function () {
+                                toggleSelection(this, i, betOptionsText[j]);
+                            };
+
+                            betButtonsDiv.appendChild(button);
+
+                            // Create hidden input for each button (default is "0" - not selected)
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = `r${i}-${betOptionsText[j]}`;
+                            hiddenInput.id = `r${i}-${betOptionsText[j]}`;
+                            hiddenInput.value = "0"; // Default value (not selected)
+                            bettingSection.appendChild(hiddenInput);
+
+                        }
+                        bettingSection.appendChild(betButtonsDiv);
+
+
+                        // Info section
+                        const infoSection = document.createElement('div');
+                        infoSection.className = 'odds-info-section';
+
+                        // Svenska Folket row
+                        const svenskaFolketInfo = document.createElement('div');
+                        svenskaFolketInfo.className = 'odds-info-row';
+
+                        const svenskaFolketInfoTitle = document.createElement('div');
+                        const svenskaFolketInfoStats = document.createElement('div');
+                        svenskaFolketInfoTitle.className = 'odds-info-title';
+                        svenskaFolketInfoStats.className = 'odds-info-stats';
+
+                        svenskaFolketInfoTitle.innerText = 'Svenska Folket';
+                        svenskaFolketInfoStats.innerHTML = `<span class="odds-stat">${perc1[i-1]}</span><span class="odds-stat">${percX[i-1]}</span><span class="odds-stat">${perc2[i-1]}</span>`;
+
+                        svenskaFolketInfo.appendChild(svenskaFolketInfoTitle);
+                        svenskaFolketInfo.appendChild(svenskaFolketInfoStats);
+
+                        // Odds row
+                        const oddsInfo = document.createElement('div');
+                        oddsInfo.className = 'odds-info-row';
+
+                        const oddsInfoTitle = document.createElement('div');
+                        const oddsInfoStats = document.createElement('div');
+                        oddsInfoTitle.className = 'odds-info-title';
+                        oddsInfoStats.className = 'odds-info-stats';
+
+                        oddsInfoTitle.innerText = 'Odds';
+                        oddsInfoStats.innerHTML = `<span class="odds-stat">${odds1[i-1]}</span><span class="odds-stat">${odds2[i-1]}</span><span class="odds-stat">${odds2[i-1]}</span>`;
+
+                        oddsInfo.appendChild(oddsInfoTitle);
+                        oddsInfo.appendChild(oddsInfoStats);
+
+                        infoSection.appendChild(svenskaFolketInfo);
+                        infoSection.appendChild(oddsInfo);
+
+                        matchContainer.appendChild(bettingSection);
+                        matchContainer.appendChild(infoSection);
+
+                        container.appendChild(matchContainer);
+                    }
+                </script>
+                <div class="submit-section">
+                    <button type="submit" class="submit-button">Submit</button>
+                </div>
+            </div>
+        </form>
+        <div class='user-info-container', id="user-info-container">
+            <h1 style="text-align: left;">User info</h1>
+        </div>
+    </div>
+</body>
+</html>

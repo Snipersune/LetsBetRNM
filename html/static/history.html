@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        .history-container {
+            overflow-y: auto;
+        }
+        .history-column-desciptions-row {
+            display: grid;
+            grid-template-columns: auto minmax(150px, 30%);
+            align-items: center; 
+            border-bottom: 2px solid #ddd;
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        }
+        .history-row {
+            display: grid;
+            grid-template-columns: auto minmax(150px, 30%);
+            align-items: center; 
+            border-bottom: 1px solid #ddd;
+            background-color: #fff;
+            overflow: hidden;
+        }
+        .history-row-date-info {
+            display: flex;
+            align-items: center;
+        }
+        .history-row-participant-info {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <h1>Betting history</h1>
+        {{if .}}
+        <div class="history-column-desciptions-row">
+            <div class="history-row-participant-info">
+                <h2 style="margin: 0px">Participant</h2>
+            </div>
+            <div class="history-row-date-info">
+                <h2 style="margin: 0px">Placed At</h2>
+            </div>
+        </div>
+            {{range .}}
+	            <div class="history-row">
+                    <div class="history-row-participant-info">{{.Participant}}</div>
+                    <div class="history-row-date-info">{{.PlacedAt}}</div>
+                </div>
+            {{end}}
+        {{else}}
+            <p>No history to show!</p>
+        {{end}}
+    </div>
+
+</body>
+</html>
