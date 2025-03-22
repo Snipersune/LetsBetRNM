@@ -1,31 +1,31 @@
 package handlers
 
 import (
-	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/snipersune/LetsBetRNM/src/auth"
+	"github.com/snipersune/LetsBetRNM/src/renderers"
 )
 
-var db *sql.DB
-
-type contextKey string
-
-const userIDKey contextKey = "user_id"
-
-// Home screen handler
-func historyHandler(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(userIDKey).(int)
+// History handler
+func (h *AppHandler) HistoryHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(auth.UserIDKey).(int)
 	if !ok {
 		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
 		return
 	}
 
-	queryGameRows, err := db.Query(
+	fmt.Printf("%d\n", userID)
+
+	queryGameRows, err := h.db.Query(
 		`SELECT 
-		bets.game_id,
-		bets.placed_at, 
+		bets.powerplay_id,
 		COALESCE(teams.name, users.username) AS participant,
-		bets.data,
+		bets.placed_at, 
+		bets.data
 		FROM bets
 		LEFT JOIN teams ON bets.team_id = teams.id
 		LEFT JOIN users ON bets.user_id = users.id
@@ -42,34 +42,38 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer queryGameRows.Close()
 
-	type BasicGameInfo struct {
-		PlacedAt    string
+	type BasicBetInfo struct {
 		Participant string
+		PlacedAt    string
 	}
 
-	type GameDetails struct {
-		GameData string `json:"GAMEDATA"` // Not finished
-		Bets     string `json:"BETS"`
-	}
+	// type GameDetails struct {
+	// 	GameData string `json:"GAMEDATA"` // Not finished
+	// 	Bets     string `json:"BETS"`
+	// }
+	//
+	// type GameData struct {
+	// 	BasicInfo BasicBetInfo
+	// 	Details   GameDetails
+	// }
 
-	type GameData struct {
-		BasicInfo BasicGameInfo
-		Details   GameDetails
-	}
-
-	var basicGameInfoArr []BasicGameInfo
+	var basicBetInfoArr []BasicBetInfo
 	//var gameDetailsArr []GameDetails
 	//var gameDataArr []GameData
 
 	for queryGameRows.Next() {
 		var gameID int
-		var basicGameInfo BasicGameInfo
+		var basicBetInfo BasicBetInfo
 		var jsonBetData string
 
-		err := queryGameRows.Scan(&gameID, &basicGameInfo, &jsonBetData)
+		err := queryGameRows.Scan(&gameID, &basicBetInfo.Participant, &basicBetInfo.PlacedAt, &jsonBetData)
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		// Parse and format
+		t, _ := time.Parse(time.RFC3339, basicBetInfo.PlacedAt)
+		basicBetInfo.PlacedAt = t.Format("2006-01-02 15:04:05")
 
 		/*
 			var jsonGameDetails string
@@ -80,7 +84,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var gameData GameData
-			gameData.BasicInfo = basicGameInfo
+			gameData.BasicInfo = basicBetInfo
 
 			// Convert JSON string to struct
 			err = json.Unmarshal([]byte(jsonGameDetails), &gameData.Details)
@@ -92,8 +96,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 			gameDataArr = append(gameDataArr, gameData)
 		*/
 
-		basicGameInfoArr = append(basicGameInfoArr, basicGameInfo)
+		basicBetInfoArr = append(basicBetInfoArr, basicBetInfo)
 	}
 
-	renderTemplate(w, "html/static/history.html", basicGameInfoArr)
+	renderers.RenderTemplate(w, "html/static/history.html", basicBetInfoArr)
 }

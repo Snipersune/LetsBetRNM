@@ -191,16 +191,16 @@
                 <script>
                     const container = document.getElementById('powerplay-container');
 
-                    const teamsHome = ["Boston Bruins", "Pittsburgh Penguins", "New Jersey Devils", "Carolina Hurricanes", "Winnipeg Jets", "Minnesota Wild", "Anaheim Ducks", "Vancouver Canucks"];
-                    const teamsAway = ["Florida Panthers", "Vegas Golden Knights", "Columbus Blue Jackets", "Tampa Bay Lightning", "New York Rangers", "Colorado Avalanche", "Washington Capitals", "Montreal Canadiens"];
-
-                    const perc1 = ["27%", "28%", "54%", "45%", "65%", "28%", "18%", "52%"];
-                    const percX = ["22%", "20%", "20%", "24%", "17%", "20%", "21%", "23%"];
-                    const perc2 = ["51%", "52%", "26%", "31%", "18%", "52%", "61%", "25%"];
+                    const teamsHome = {{ .HomeTeams }};
+                    const teamsAway = {{ .AwayTeams }};
                     
-                    const odds1 = ["3,95", "3,80", "2,04", "2,18", "1,91", "3,25", "3,65", "2,10"];
-                    const oddsX = ["4,50", "4,50", "4,35", "4,30", "4,40", "4,50", "4,50", "4,40"];
-                    const odds2 = ["1,80", "1,83", "3,20", "2,90", "3,55", "2,02", "1,87", "3,10"];
+                    const perc1 = {{ .PercentagesOpt1 }};
+                    const percX = {{ .PercentagesOptX }};
+                    const perc2 = {{ .PercentagesOpt2 }};
+                    
+                    const odds1 = {{ .OddsOpt1 }};
+                    const oddsX = {{ .OddsOptX }};
+                    const odds2 = {{ .OddsOpt2 }};
 
                     betOptionsText = ["1", "X", "2"];
                     for (let i = 1; i <= 8; i++) {

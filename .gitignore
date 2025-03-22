@@ -4,3 +4,4 @@ _*
 output/
 .vscode
 test*
+html/rendered/*
