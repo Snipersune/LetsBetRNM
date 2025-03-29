@@ -126,5 +126,5 @@ func (h *AppHandler) HomeTabHandler(w http.ResponseWriter, r *http.Request) {
 	// 	basicBetInfoArr,
 	// }
 
-	renderers.RenderTemplate(w, "html/static/test_tab_powerplay.html", fileData)
+	renderers.RenderTemplate(w, "html/static/tabhome.html", fileData)
 }

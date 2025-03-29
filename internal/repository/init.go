@@ -1,4 +1,4 @@
-package database
+package repository
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func SqlInitDb(dbName string) (*sql.DB, error) {
+func InitializeSqlDB(dbName string) (*sql.DB, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err

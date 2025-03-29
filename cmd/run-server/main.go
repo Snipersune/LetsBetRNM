@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
+	"github.com/snipersune/LetsBetRNM/cmd/database"
 	"github.com/snipersune/LetsBetRNM/src/auth"
 	"github.com/snipersune/LetsBetRNM/src/database"
 	"github.com/snipersune/LetsBetRNM/src/fetch"
@@ -29,8 +30,15 @@ var dbFname = "biggestassdatabase.db"
 
 func main() {
 
+	store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   3600,  // Session lasts for 1 hour (3600 seconds)
+		HttpOnly: true,  // Prevent JavaScript access (security best practice)
+		Secure:   false, // Require HTTPS
+	}
+
 	// Initialize database instance
-	db, err := database.SqlInitDb(dbFname)
+	db, err := database.InitializeSqlDB(dbFname)
 	if err != nil {
 		panic(err)
 	}
@@ -41,18 +49,17 @@ func main() {
 
 	go func() {
 		http.HandleFunc("/", h.DefaultHandler)
-		http.Handle("/home", auth.AuthMiddleware(http.HandlerFunc(h.HomeHandler), store))
 
-		http.HandleFunc("/login", h.LoginHandler)
-		http.HandleFunc("/register", h.RegisterHandler)
+		http.HandleFunc("/login", http.HandlerFunc(h.LoginHandler))
+		http.HandleFunc("/register", http.HandlerFunc(h.RegisterHandler))
+		http.HandleFunc("/logout", http.HandlerFunc(h.LogoutHandler))
 
-		http.HandleFunc("/process-login", h.PowerplayHandler)
-		http.HandleFunc("/process-register", h.ProcessLoginHandler)
+		http.HandleFunc("/process-login", h.ProcessLoginHandler)
+		http.HandleFunc("/process-register", h.ProcessRegisterHandler)
+		http.HandleFunc("/check-authentication", h.CheckAuthenticationHandle)
 
-		http.Handle("/powerplay", auth.AuthMiddleware(http.HandlerFunc(h.PowerplayHandler), store))
 		http.Handle("/process-powerplay", auth.AuthMiddleware(http.HandlerFunc(h.ProcessPowerplayHandler), store))
 
-		http.Handle("/history", auth.AuthMiddleware(http.HandlerFunc(h.HistoryHandler), store))
 		http.Handle("/tabhome", auth.AuthMiddleware(http.HandlerFunc(h.HomeTabHandler), store))
 
 		log.Println("Server running on http://localhost:8080")
