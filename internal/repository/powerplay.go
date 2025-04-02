@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/snipersune/LetsBetRNM/cmd/models"
+	"github.com/snipersune/LetsBetRNM/internal/models"
 )
 
 type PowerplayRepository interface {

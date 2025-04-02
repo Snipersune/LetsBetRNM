@@ -8,9 +8,6 @@ import (
 	"github.com/snipersune/LetsBetRNM/internal/auth"
 	"github.com/snipersune/LetsBetRNM/internal/fetch"
 	"github.com/snipersune/LetsBetRNM/internal/handlers"
-	"github.com/snipersune/LetsBetRNM/internal/repository"
-
-	"github.com/gorilla/mux"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -39,19 +36,27 @@ func main() {
 	}
 
 	// Initialize database instance
-	db, err := repository.InitializeSqlDB(dbFname)
+	db, err := database.InitializeSqlDB(dbFname)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-
-	r := mux.NewRouter()
 
 	// Initialize app handler
 	h := handlers.NewAppHandler(store, db)
 
 	go func() {
 		http.HandleFunc("/", h.DefaultHandler)
+
+		http.HandleFunc("/login", http.HandlerFunc(h.LoginHandler))
+		http.HandleFunc("/register", http.HandlerFunc(h.RegisterHandler))
+		http.HandleFunc("/logout", http.HandlerFunc(h.LogoutHandler))
+
+		http.HandleFunc("/process-login", h.ProcessLoginHandler)
+		http.HandleFunc("/process-register", h.ProcessRegisterHandler)
+		http.HandleFunc("/check-authentication", h.CheckAuthenticationHandle)
+
+		http.Handle("/process-powerplay", auth.AuthMiddleware(http.HandlerFunc(h.ProcessPowerplayHandler), store))
 
 		http.Handle("/tabhome", auth.AuthMiddleware(http.HandlerFunc(h.HomeTabHandler), store))
 

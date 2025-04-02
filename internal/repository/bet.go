@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/snipersune/LetsBetRNM/cmd/models"
+import "github.com/snipersune/LetsBetRNM/internal/models"
 
 type BetRepository interface {
 	CreateBet(*models.Bet) error

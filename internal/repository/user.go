@@ -3,12 +3,13 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/snipersune/LetsBetRNM/cmd/models"
+	"github.com/snipersune/LetsBetRNM/internal/models"
 )
 
 type UserRepository interface {
 	CreateUser(username, password string) error
 	GetUserByID(id int) (*models.User, error)
+	GetUserTeams(id int) ([]models.Team, error)
 	GetUserBets(id int) ([]models.Bet, error)
 	DeleteUser(id int) error
 }

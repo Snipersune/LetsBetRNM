@@ -3,13 +3,14 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/snipersune/LetsBetRNM/cmd/models"
+	"github.com/snipersune/LetsBetRNM/internal/models"
 )
 
 type TeamRepository interface {
 	CreateTeam(name string) error
 	AddUserToTeam(user_id, team_id int) error
 	RemoveUserFromTeam(user_id, team_id int) error
+	GetTeamByID(id int) (*models.Team, error)
 	GetTeamMembers(id int) ([]models.User, error)
 	DeleteTeam(id int) error
 }
