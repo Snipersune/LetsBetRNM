@@ -41,22 +41,21 @@ for container in row_containers:
     teams_home.append(home_team_html.text)
     teams_away.append(away_team_html.text)
 
-    info_html = container.find_all(class_="tipsinfo-statistics-grid")
+    stats_info_html = container.find_all(class_="stat-trend stat-trend-neutral")
     
-    percs_html = info_html[0]
-    perc1 = percs_html.find_next()
-    percX = perc1.find_next()
-    perc2 = percX.find_next()
+    percs_html = stats_info_html[0]
+    perc1 = stats_info_html[0]
+    percX = stats_info_html[1]
+    perc2 = stats_info_html[2]
     
     opt1_percs.append(perc1.text)
     optX_percs.append(percX.text)
     opt2_percs.append(perc2.text)
 
-    if len(info_html) > 1:
-        odds_html = info_html[1]
-        odds1 = odds_html.find_next()
-        oddsX = odds1.find_next()
-        odds2 = oddsX.find_next()
+    if len(stats_info_html) > 3:
+        odds1 = stats_info_html[3]
+        oddsX = stats_info_html[4]
+        odds2 = stats_info_html[5]
 
         opt1_odds.append(odds1.text)
         optX_odds.append(oddsX.text)
@@ -65,7 +64,6 @@ for container in row_containers:
         opt1_odds.append("-")
         optX_odds.append("-")
         opt2_odds.append("-")
-
 
 powerplay_data = {
     "teams_home_array": teams_home,

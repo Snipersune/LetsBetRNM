@@ -46,8 +46,8 @@ func main() {
 		http.HandleFunc("/login", h.LoginHandler)
 		http.HandleFunc("/register", h.RegisterHandler)
 
-		http.HandleFunc("/process-login", h.PowerplayHandler)
-		http.HandleFunc("/process-register", h.ProcessLoginHandler)
+		http.HandleFunc("/process-login", h.ProcessLoginHandler)
+		http.HandleFunc("/process-register", h.ProcessRegisterHandler)
 
 		http.Handle("/powerplay", auth.AuthMiddleware(http.HandlerFunc(h.PowerplayHandler), store))
 		http.Handle("/process-powerplay", auth.AuthMiddleware(http.HandlerFunc(h.ProcessPowerplayHandler), store))
